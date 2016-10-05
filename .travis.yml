@@ -3,7 +3,7 @@ deploy:
   provider: releases
   api_key:
     secure: EvqrfrLz+PZIRFf8foTBDc4z+k9m1G1bQS4D5LDELI3zbvs1hfUNKj9m5pQPDgY1jHnOTdFHYkUWZqtoOFzMPFgjfTP18MBCcYIaH7nqMqefSZgKivDLBMD1rFup8aYXrprqN9lxAP/YZIs32K44coAwhFF531hAwGFFwqFvwME0levfMB80p6W2nhgNHPh3sVv0i2PWulFHeYCuQ1LojgxE83slaOV80zIsDDVJwrRFLWZOUAdL1kdWIK7ejHrG2ULNP84MepvhaUYBDJ5p50QxHgv+Ey1YZ6wXl776vW0zwa5YsUNbn2/3WZby1FlC1H1sCJQEfu6o3eR40mRT8jLFxE7iJfSXUoSUa+9duldy4SVYo6WYFAbwR+yE60ux7JrYlX+PewnVZsKypDalsRKHBXyPkddYp+y47g7d20C1xKaEDxYRnnHse0fBNqR6/lzkIvio5M94QYPqZGnXzVBTygFrGOzKTL7fCd0WvS2hRhWCMRTm8X7ZrUiWeVDxW5X3A8btaHQOc3XRoRW3+hFye0P0e4z7vWaMRTKMaNdxCc563ftfhRhz9DBAVeaAgfG4Uh/PtmuLAs02dkz8yKa9Ck+IfOy1IuTEjjXhmZYlnTH+xaTHYlZRov/os/XeYG+BsJoUjMV5peqYemWJ4fUjzRGUJcQ4/WrxuCn5RwM=
-  file: build//distributions/xld-controlm-plugin-1.0.0.xldp
+  file: build//distributions/xld-controlm-plugin-1.0.1.xldp
   on:
     all_branches: true
     tags: true
