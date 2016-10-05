@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+
+    THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS
+    FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
+
+-->
+<synthetic xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd" xmlns="http://www.xebialabs.com/deployit/synthetic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!-- Control-M Container -->
+
+  <!-- Control-M EM container -->
+  <type type="ctm.em" extends="generic.Container">
+    <property name="ctm_empath" label="CTM EM Path" kind="string" description="EM Path" required="true" default="C:\Program Files\BMC Software\Control-M EM 7.0.00\Default\"/>
+    <property name="ctm_emlogin" label="CTM EM Login" default="" required="true"/>
+    <property name="ctm_empwd" label="CTM EM Password" default="" required="true" password="true"/>
+    <property name="ctm_emgui" label="CTM EM GUI Server" default="" required="true"/>
+    <property name="ctm_emversion" label="CTM EM Version" default="7.0" required="true"/>
+  </type>
+
+  <!-- Control-M Agent container -->
+  <type type="ctm.agent" extends="generic.Container" inspectable="true">
+    <property name="ctmagpath" label="CTM Agent Path" kind="string" description="CTM Agent Path" required="true" default="C:\Program Files\BMC Software\Control-M Agent\Default\"/>
+    <property name="inspectScript" default="ctm/inspect-agent" hidden="true"/>
+
+    <!--<method name="inspect" delegate="shellScript" script="ctm/inspect-agent" />-->
+  </type>
+
+  <!-- Control-M deployable -->
+
+    <!-- Abstract Order a Table -->
+    <type type="ctm.OrderTableAbstract" extends="udm.BaseDeployable" description="CTM Order Table" virtual="true">
+      <property name="ctm_table" label="Table Name" default="" hidden="false" required="true">
+        <rule type="regex" pattern="^[a-zA-Z0-9]+" message="Table must start with a letter to avoid *" />
+      </property>
+    </type>
+
+    <!-- Order a Table -->
+    <type type="ctm.ordtable" extends="udm.BaseDeployed" description="Order Job" container-type="ctm.agent" deployable-type="ctm.OrderTable">
+      <generate-deployable type="ctm.OrderTable" extends="ctm.OrderTableAbstract" description="CTM Order Table" copy-default-values="true"/>
+      <property name="ctm_table" label="Table Name" default="${deployed.deployable.ctm_table}" />
+      <property name="ctm_job" label="Job Name" default="*" hidden="true" required="false"/>
+      <property name="ctm_HOLD" category="Advanced"  kind="boolean"  label="Hold on order" default="false" hidden="false" required="false"/>
+      <property name="ctm_Force"  category="Advanced"  kind="boolean" label="Force Order (Ignore Calendar)" default="false" hidden="false" required="false"/>
+      <property name="ctm_WaitODAT" category="Advanced"  kind="boolean" label="Wait for ODAT" default="false" hidden="true" required="false"/>
+      <property name="createOrder" category="Advanced" kind="integer" default="70" hidden="false" required="true"/>
+      <property name="ctm_ODAT" label="Order Date" default="ODAT" hidden="false" required="true"/>
+    </type>
+
+    <!-- Order a Job -->
+    <type type="ctm.ordjob" extends="ctm.ordtable" description="Order Job" container-type="ctm.agent" deployable-type="ctm.OrderJob">
+      <generate-deployable type="ctm.OrderJob" extends="ctm.OrderTable" description="CTM Order Job" copy-default-values="true"/>
+      <property name="ctm_job" label="Job Name" default="" hidden="false" required="true"/>
+    </type>
+
+
+    <!-- Add a condition -->
+    <type type="ctm.ctmcontb" extends="udm.BaseDeployed" description="Add condition" container-type="ctm.agent" deployable-type="ctm.Condition">
+      <generate-deployable type="ctm.Condition" extends="udm.BaseDeployable" description="CTM Order Table" copy-default-values="true"/>
+      <property name="ctm_condition_name" label="Condition Name" default="" hidden="false" required="true"/>
+      <property name="ctm_ODAT" default="ODAT" label="Order Date" hidden="false" required="true"/>
+      <property name="createOrder" category="Advanced" kind="integer" default="70" hidden="false" required="true"/>
+    </type>
+
+    <!-- Quantitative Resource -->
+    <type type="ctm.quant" extends="udm.BaseDeployed" description="Quantitative Ressource" container-type="ctm.agent" deployable-type="ctm.Quantitative">
+      <generate-deployable type="ctm.Quantitative" extends="udm.BaseDeployable" description="Quantitative ressource" copy-default-values="true"/>
+      <property name="ctm_quantitative" label="Quantitative Resource Name" default="" hidden="false" required="true"/>
+      <property name="ctm_quantitative_value" label="Quantitative Resource Value" kind="integer" default="" hidden="false" required="true"/>
+      <property name="createOrder" category="Advanced" kind="integer" default="90" hidden="false" required="true"/>
+      <property name="destroyOrder" category="Advanced" kind="integer" default="10" hidden="false" required="true"/>
+      <property name="ctm_quantitative_down" label="Set to 0 during each deployment" kind="boolean" default="false" hidden="false" required="false"/>
+    </type>
+
+    <!-- Control Resource -->
+    <type type="ctm.control" extends="udm.BaseDeployed" description="Control Ressource" container-type="ctm.agent" deployable-type="ctm.Control">
+      <generate-deployable type="ctm.Control" extends="udm.BaseDeployable" description="Control ressource" copy-default-values="true"/>
+      <property name="ctm_control" label="Control Resource Name" default="" hidden="false" required="true"/>
+      <property name="createOrder" category="Advanced" kind="integer" default="0" hidden="true" required="true"/>
+    </type>
+
+    <!-- ctmpwd entry -->
+    <type type="ctm.ctmpwd" extends="generic.ExecutedScript" description="Run ctmpwd" container-type="ctm.agent" deployable-type="ctm.Ctmpwd">
+      <generate-deployable type="ctm.Ctmpwd" extends="generic.Resource" description="CTM define login" copy-default-values="true"/>
+      <property name="ctm_login" label="Login" default="" hidden="false" required="true"/>
+      <property name="ctm_password" label="Password" password="true" default="" hidden="false" required="true"/>
+      <property name="createScript" default="ctm/ctmpwdadd" hidden="true"/>
+      <property name="createVerb" default="Add Control-M user" hidden="true"/>
+      <property name="destroyScript" default="ctm/ctmpwddel" hidden="true"/>
+      <property name="destroyVerb" default="Delete Control-M user" hidden="true"/>
+      <property name="modifyScript" default="ctm/ctmpwdupd" hidden="true"/>
+      <property name="modifyVerb" default="Update Control-M user" hidden="true"/>
+    </type>
+    <!-- Table definition -->
+    <type type="ctm.XMLTableFILE" extends="generic.File" description="ctm XML Table" virtual="true">
+      <property name="ctm_XML_table" default="" label="CTM Table Name" description="Control-M Table Name" required="true"/>
+      <property name="ctmsrv" label="Control-M Server name" default="" hidden="false" required="true"/>
+      <property name="targetFile" default="${deployed.ctm_XML_table}.xml" hidden="true"/>
+    </type>
+    <type type="ctm.table" extends="generic.ExecutedScriptWithDerivedArtifact" description="Run Upload" container-type="ctm.em" deployable-type="ctm.XMLTable">
+      <generate-deployable type="ctm.XMLTable" extends="ctm.XMLTableFILE" description="CTM Upload" copy-default-values="true"/>
+      <property name="ctm_XML_table" default="" label="CTM Table Name" description="Control-M Table Name" required="true"/>
+      <property name="ctmsrv" label="Control-M Server name" default="" hidden="false" required="true"/>
+      <property name="targetFile" default="${deployed.ctm_XML_table}.xml" hidden="true"/>
+      <property name="upload" kind="boolean" label="Upload to Control-M Server" default="true" hidden="false" required="false"/>
+      <property name="createScript" default="ctm/tableadd" hidden="true"/>
+      <property name="createVerb" default="Deploy Control-M Table" hidden="true"/>
+      <property name="destroyScript" default="ctm/tabledel" hidden="true"/>
+      <property name="destroyVerb" default="Delete Control-M Table" hidden="true"/>
+    </type>
+  </synthetic>
+

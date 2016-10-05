@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<!--
+
+    THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS
+    FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
+
+-->
+<rules xmlns="http://www.xebialabs.com/xl-deploy/xl-rules">
+  <rule name="ctm.RunCtmcontb" scope="deployed">
+    <conditions>
+      <type>ctm.ctmcontb</type>
+      <operation>CREATE</operation>
+      <operation>MODIFY</operation>
+      <operation>NOOP</operation>
+    </conditions>
+    <steps>
+      <os-script>
+        <script>ctm/ctmagt</script>
+        <order expression="true">int(deployed.createOrder)</order>
+        <freemarker-context>
+          <ctmagtCommand expression="true">'ctmcontb -ADD ' + deployed.ctm_condition_name + ' ' + deployed.ctm_ODAT</ctmagtCommand>
+        </freemarker-context>
+        <description expression="true">"Post condition %s(%s) on %s_%s" % (deployed.ctm_condition_name,deployed.ctm_ODAT, deployed.container.name,deployed.container.host.name)</description>
+      </os-script>
+    </steps>
+  </rule>
+
+  <rule name="ctm.RunOrdjob" scope="deployed">
+    <conditions>
+      <type>ctm.ordtable</type>
+      <type>ctm.ordjob</type>
+      <operation>CREATE</operation>
+      <operation>MODIFY</operation>
+      <operation>NOOP</operation>
+    </conditions>
+    <steps>
+      <os-script>
+        <script>ctm/ctmorder</script>
+        <order expression="true">int(deployed.createOrder)</order>
+        <description expression="true">"Order %s\%s(%s) on %s_%s" % (deployed.ctm_table,deployed.ctm_job,deployed.ctm_ODAT, deployed.container.name,deployed.container.host.name)</description>
+      </os-script>
+    </steps>
+  </rule>
+
+  <rule name="ctm.CheckControl" scope="deployed">
+    <conditions>
+      <type>ctm.control</type>
+      <operation>CREATE</operation>
+      <operation>MODIFY</operation>
+      <operation>NOOP</operation>
+    </conditions>
+    <steps>
+      <os-script>
+        <script>ctm/ctmctl</script>
+        <order expression="true">int(deployed.createOrder)</order>
+        <description expression="true">"Check if Control %s does not exist on %s_%s" % (deployed.ctm_control,deployed.container.name,deployed.container.host.name)</description>
+      </os-script>
+    </steps>
+  </rule>
+
+  <rule name="ctm.downQR" scope="deployed">
+    <conditions>
+      <type>ctm.quant</type>
+      <operation>NOOP</operation>
+      <expression>deployed.ctm_quantitative_down</expression>
+    </conditions>
+    <steps>
+      <os-script>
+        <script>ctm/ctmagt</script>
+        <order expression="true">int(deployed.destroyOrder)</order>
+        <freemarker-context>
+          <ctmagtCommand expression="true">'ecaqrtab UPDATE ' + delta.previous.ctm_quantitative + ' 0'</ctmagtCommand>
+        </freemarker-context>
+        <description expression="true">"Changing Quantitative Resource %s to 0 on %s_%s" % (delta.previous.ctm_quantitative, deployed.container.name,deployed.container.host.name)</description>
+      </os-script>
+    </steps>
+  </rule>
+
+  <rule name="ctm.upQR" scope="deployed">
+    <conditions>
+      <type>ctm.quant</type>
+      <operation>NOOP</operation>
+      <expression>deployed.ctm_quantitative_down</expression>
+    </conditions>
+    <steps>
+      <os-script>
+        <script>ctm/ctmagt</script>
+        <order expression="true">int(deployed.createOrder)</order>
+        <freemarker-context>
+          <ctmagtCommand expression="true">'ecaqrtab UPDATE ' + deployed.ctm_quantitative + ' ' +  str(deployed.ctm_quantitative_value)</ctmagtCommand>
+        </freemarker-context>
+        <description expression="true">"Changing Quantitative Resource %s to %s on %s_%s" % (deployed.ctm_quantitative,deployed.ctm_quantitative_value, deployed.container.name,deployed.container.host.name)</description>
+      </os-script>
+    </steps>
+  </rule>
+
+  <rule name="ctm.DelQR" scope="deployed">
+    <conditions>
+      <type>ctm.quant</type>
+      <operation>DESTROY</operation>
+      <operation>MODIFY</operation>
+    </conditions>
+    <steps>
+      <os-script>
+        <script>ctm/ctmagt</script>
+        <order expression="true">int(deployed.destroyOrder)</order>
+        <freemarker-context>
+          <ctmagtCommand expression="true">'ecaqrtab DELETE ' + delta.previous.ctm_quantitative</ctmagtCommand>
+        </freemarker-context>
+        <description expression="true">"Delete Quantitative Resource %s on %s_%s" % (delta.previous.ctm_quantitative, deployed.container.name,deployed.container.host.name)</description>
+      </os-script>
+    </steps>
+  </rule>
+
+  <rule name="ctm.AddQR" scope="deployed">
+    <conditions>
+      <type>ctm.quant</type>
+      <operation>CREATE</operation>
+      <operation>MODIFY</operation>
+    </conditions>
+    <steps>
+      <os-script>
+        <freemarker-context>
+          <ctmagtCommand expression="true">'ecaqrtab ADD ' + deployed.ctm_quantitative + ' ' + str(deployed.ctm_quantitative_value)</ctmagtCommand>
+        </freemarker-context>
+        <script>ctm/ctmagt</script>
+        <order expression="true">int(deployed.createOrder)</order>
+        <description expression="true">"Add Quantitative Resource %s(%s) on %s_%s" % (deployed.ctm_quantitative,deployed.ctm_quantitative_value, deployed.container.name,deployed.container.host.name)</description>
+      </os-script>
+    </steps>
+  </rule>
+</rules>
+
+
