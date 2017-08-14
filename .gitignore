@@ -1,10 +1,4 @@
 .gradle
 build
 .idea/
-gradlew
-gradlew.bat
-gradle/
-xld-tibcobw-plugin.iml
-xld-tibcobw-plugin.ipr
-xld-tibcobw-plugin.iws
 
